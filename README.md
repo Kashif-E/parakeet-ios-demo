@@ -36,15 +36,10 @@ cd parakeet-ios-demo
 # 2. Build the static framework (device + simulator). A few minutes.
 ./scripts/build_xcframework.sh                 # -> vendor/Parakeet.xcframework
 
-# 3. Get a model — any *streaming* parakeet GGUF that loads on stock parakeet.cpp,
-#    saved as ParakeetDemo/Resources/model.gguf. e.g. the stock q4_k from
-#    https://huggingface.co/kashif3314/nemotron-3.5-asr-streaming-0.6b-gguf
+# 3. Get the model (see "Models" below) -> ParakeetDemo/Resources/model.gguf
 mkdir -p ParakeetDemo/Resources
-#   nemotron-3.5-asr-streaming-0.6b-q4_k.gguf  ->  ParakeetDemo/Resources/model.gguf
 
-# 4. (Optional, for compare mode) Moonshine base-en model files into
-#    ParakeetDemo/Resources/base-en/ : encoder_model.ort, decoder_model_merged.ort,
-#    tokenizer.bin (from github.com/moonshine-ai/moonshine assets).
+# 4. (Optional, for compare mode) Moonshine base-en -> ParakeetDemo/Resources/base-en
 mkdir -p ParakeetDemo/Resources/base-en
 
 # 5. Generate the Xcode project (the wrapper also disables scheme queue-debugging,
@@ -54,6 +49,41 @@ mkdir -p ParakeetDemo/Resources/base-en
 # 6. Open, set your signing Team, pick your iPhone, Run.
 open ParakeetDemo.xcodeproj
 ```
+
+## Models
+
+GGUFs are on Hugging Face — **[kashif3314/nemotron-3.5-asr-streaming-0.6b-gguf](https://huggingface.co/kashif3314/nemotron-3.5-asr-streaming-0.6b-gguf)**
+(unofficial, converted with parakeet.cpp; weights are **OpenMDW-1.1**):
+
+| file | recipe | size | stock parakeet.cpp? |
+| ---- | ------ | ---- | ------------------- |
+| `…-q4_k.gguf` | q4_k linear, **F32** rest | ~685 MB | ✅ **use this** |
+| `…-q4k-f16.gguf` | q4_k linear, f16 rest | ~486 MB | ⚠️ patched build only |
+| `…-q4k-q8.gguf` | q4_k linear, q8_0 rest | ~460 MB | ⚠️ patched build only |
+
+Download the **q4_k** file and save it as `ParakeetDemo/Resources/model.gguf` — it
+loads on the vanilla pinned submodule, no patch needed.
+
+For **compare mode**, also fetch Moonshine `base-en` (`encoder_model.ort`,
+`decoder_model_merged.ort`, `tokenizer.bin`) from
+[moonshine-ai/moonshine](https://github.com/moonshine-ai/moonshine) into
+`ParakeetDemo/Resources/base-en/`.
+
+### Smaller models (optional — needs the loader patch)
+
+The `q4k-f16` / `q4k-q8` files store the non-matmul tensors (conv/LSTM/featurizer/
+norm) in reduced precision (~30 % smaller, **WER 0 vs NeMo** on tested clips) and
+rely on a load-time dequant that isn't in released parakeet.cpp yet. To use them,
+apply **`parakeet-rest-loader.patch`** (also in the HF repo) to the submodule before
+building:
+
+```sh
+cd third_party/parakeet.cpp
+git apply /path/to/parakeet-rest-loader.patch     # adds: quantize --rest f16|q8_0 + load-time dequant
+cd ../.. && ./scripts/build_xcframework.sh
+```
+
+The patch modifies MIT-licensed parakeet.cpp and is provided under the same MIT license.
 
 ## Compare mode
 
