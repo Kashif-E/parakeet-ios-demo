@@ -10,6 +10,10 @@ and [Moonshine](https://github.com/moonshine-ai/moonshine-swift) side by side.
 > **Community example — not maintained or tested by the parakeet.cpp core team**
 > (they have no Apple toolchain). Best-effort, maintained here.
 
+<p align="center">
+  <img src="docs/screenshot.png" width="300" alt="Compare mode: Parakeet vs Apple SpeechTranscriber vs Moonshine transcribing the same audio live">
+</p>
+
 ## How it links to parakeet.cpp
 
 parakeet.cpp is a **pinned git submodule** at `third_party/parakeet.cpp`.
