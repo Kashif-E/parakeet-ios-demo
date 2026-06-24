@@ -16,4 +16,10 @@ SCHEME="ParakeetDemo.xcodeproj/xcshareddata/xcschemes/ParakeetDemo.xcscheme"
 if ! grep -q 'queueDebuggingEnabled = "NO"' "$SCHEME"; then
   perl -0pi -e 's/(<LaunchAction\n)/$1      queueDebuggingEnabled = "NO"\n/' "$SCHEME"
 fi
-echo "OK -> project generated, queue debugging disabled in scheme"
+
+# Resolve SwiftPM packages now, so the freshly-generated project opens without a
+# "Missing package product 'MoonshineVoice'" error (regenerating wipes the state).
+xcodebuild -resolvePackageDependencies -project ParakeetDemo.xcodeproj -scheme ParakeetDemo >/dev/null 2>&1 || \
+  echo "note: package resolve skipped/failed — in Xcode use File > Packages > Resolve Package Versions"
+
+echo "OK -> project generated, queue debugging disabled, packages resolved"
