@@ -28,11 +28,11 @@ COMMON=(
   -DCMAKE_SYSTEM_NAME=iOS
   -DPARAKEET_BUILD_CLI=OFF -DPARAKEET_BUILD_SERVER=OFF -DPARAKEET_BUILD_TESTS=OFF
   -DPARAKEET_SHARED=OFF
-  # EMBED=OFF: don't compile the Metal shader source into the lib. The app
-  # ships a precompiled default.metallib (built from ggml-metal.metal as an Xcode
-  # source), which ggml loads from the bundle — avoids the ~9.6 s runtime shader
-  # compile at first load.
-  -DPARAKEET_GGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=OFF
+  # EMBED=ON: embed the Metal shader source into the lib so the framework is
+  # self-contained — the app needs no metal source, no Metal Toolchain, and no
+  # submodule when using the prebuilt framework. Shaders compile at first load
+  # (~9.6 s, hidden behind the load spinner). Simpler clone > that one-time cost.
+  -DPARAKEET_GGML_METAL=ON -DGGML_METAL_EMBED_LIBRARY=ON
   -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF
   -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0
   -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO

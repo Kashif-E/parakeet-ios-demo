@@ -36,12 +36,6 @@ targets:
         type: folder
         optional: true
         buildPhase: resources
-      # ggml's Metal shaders — Xcode compiles this to default.metallib and bundles
-      # it (handling device vs simulator SDK). ggml (built EMBED=OFF) loads it at
-      # runtime instead of compiling the shader source on first load (~9.6 s saved).
-      # Sourced from the submodule so the metallib always matches the linked ggml.
-      - path: third_party/parakeet.cpp/third_party/ggml/src/ggml-metal/ggml-metal.metal
-        group: metal
     dependencies:
       - framework: vendor/Parakeet.xcframework   # built by scripts/build_xcframework.sh
         embed: false                              # static lib, not embedded
@@ -67,7 +61,3 @@ targets:
         # Apple QA1490. -lc++ for the C++ runtime (ggml/parakeet are C++).
         OTHER_LDFLAGS: -ObjC -lc++
         TARGETED_DEVICE_FAMILY: "1,2"
-        # Let the Metal compiler resolve ggml-metal.metal's #includes
-        # (ggml-common.h, ggml-metal-impl.h) from the ggml source tree.
-        MTL_HEADER_SEARCH_PATHS: $(SRCROOT)/third_party/parakeet.cpp/third_party/ggml/src $(SRCROOT)/third_party/parakeet.cpp/third_party/ggml/src/ggml-metal
-        MTL_FAST_MATH: "YES"
