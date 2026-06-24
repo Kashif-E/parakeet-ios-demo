@@ -1,4 +1,4 @@
-# parakeet-ios-demo
+# 🦜 parakeet-ios-demo
 
 Live, **on-device streaming speech-to-text** on iOS, built on
 [parakeet.cpp](https://github.com/mudler/parakeet.cpp). Tap the mic, speak, and the
