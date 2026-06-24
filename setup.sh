@@ -13,7 +13,9 @@ cd "$(dirname "$0")"
 
 REPO="Kashif-E/parakeet-ios-demo"
 HF="https://huggingface.co/kashif3314/nemotron-3.5-asr-streaming-0.6b-gguf/resolve/main"
-MOON="https://media.githubusercontent.com/media/moonshine-ai/moonshine/main/examples/android/Transcriber/app/src/main/assets/base-en"
+# .ort files are Git LFS (use media.); tokenizer.bin is a plain file (use raw.)
+MOON_LFS="https://media.githubusercontent.com/media/moonshine-ai/moonshine/main/examples/android/Transcriber/app/src/main/assets/base-en"
+MOON_RAW="https://raw.githubusercontent.com/moonshine-ai/moonshine/main/examples/android/Transcriber/app/src/main/assets/base-en"
 
 # 1. Prebuilt Parakeet.xcframework (self-contained, EMBED=ON).
 if [ ! -d vendor/Parakeet.xcframework ]; then
@@ -38,12 +40,10 @@ fi
 
 # 3. Moonshine base-en (for compare mode).
 mkdir -p ParakeetDemo/Resources/base-en
-for f in encoder_model.ort decoder_model_merged.ort tokenizer.bin; do
-  if [ ! -f "ParakeetDemo/Resources/base-en/$f" ]; then
-    echo "→ downloading Moonshine $f…"
-    curl -fL "$MOON/$f" -o "ParakeetDemo/Resources/base-en/$f"
-  fi
+for f in encoder_model.ort decoder_model_merged.ort; do
+  [ -f "ParakeetDemo/Resources/base-en/$f" ] || { echo "→ downloading Moonshine $f…"; curl -fL "$MOON_LFS/$f" -o "ParakeetDemo/Resources/base-en/$f"; }
 done
+[ -f "ParakeetDemo/Resources/base-en/tokenizer.bin" ] || { echo "→ downloading Moonshine tokenizer.bin…"; curl -fL "$MOON_RAW/tokenizer.bin" -o "ParakeetDemo/Resources/base-en/tokenizer.bin"; }
 
 # 4. Generate the Xcode project (disables scheme queue-debugging, resolves packages).
 ./scripts/generate.sh
